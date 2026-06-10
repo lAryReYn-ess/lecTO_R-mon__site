@@ -1,0 +1,13 @@
+body{
+  background-color: azure;
+  font-family: arial,sans serif;
+  margin: 0;
+}
+  h1{
+    color: beilge;
+    texte-align: center;
+  }
+p{
+  color: purle;
+  line-height: 1.6;
+}
