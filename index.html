@@ -1,12 +1,125 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-    <title>Mon site</title>
-    <link rel="stylesheet" herf="style">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Manga Reader{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <h1>Bienvenue sur mon site !</h1>
-    <p>Mon premier site web avec GitHub.</p>
-    <script scr="scipt.js"></script>
+    <nav class="navbar">
+        <a href="/" class="logo">📚 MangaReader</a>
+        <div class="nav-links">
+            <a href="/">Accueil</a>
+            <a href="#">Bibliothèque</a>
+            <a href="#">Connexion</a>
+        </div>
+    </nav>
+    
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+    
+    <footer>
+        <p>© 2026 MangaReader - Projet personnel</p>
+    </footer>
+    
+    {% block scripts %}{% endblock %}
+    {% extends "base.html" %}
+
+{% block title %}Accueil - MangaReader{% endblock %}
+
+{% block content %}
+<div class="catalogue">
+    <h1>📖 Catalogue</h1>
+    <div class="manga-grid">
+        {% for manga_id, manga in mangas.items() %}
+        <a href="/manga/{{ manga_id }}" class="manga-card">
+            <div class="manga-cover">
+                <img src="{{ url_for('images', filename=manga.cover) }}" alt="{{ manga.titre }}">
+            </div>
+            <div class="manga-info">
+                <h3>{{ manga.titre }}</h3>
+                <p class="auteur">{{ manga.auteur }}</p>
+                <span class="chapitres">{{ manga.chapitres }} chapitres</span>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+    {% extends "base.html" %}
+
+{% block title %}{{ manga.titre }} - MangaReader{% endblock %}
+
+{% block content %}
+<div class="manga-detail">
+    <div class="manga-header">
+        <img src="{{ url_for('images', filename=manga.cover) }}" alt="{{ manga.titre }}" class="detail-cover">
+        <div class="manga-meta">
+            <h1>{{ manga.titre }}</h1>
+            <p class="auteur">✍️ {{ manga.auteur }}</p>
+            <p class="synopsis">{{ manga.synopsis }}</p>
+        </div>
+    </div>
+    
+    <div class="chapitres-liste">
+        <h2>📑 Chapitres</h2>
+        <div class="chapitres-grid">
+            {% for ch in chapitres %}
+            <a href="/reader/{{ manga_id }}/{{ ch }}" class="chapitre-btn">
+                Chapitre {{ ch }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+    {% extends "base.html" %}
+
+{% block title %}{{ manga.titre }} - Chapitre {{ chapitre }}{% endblock %}
+
+{% block content %}
+<div class="reader-container">
+    <!-- Barre de navigation du lecteur -->
+    <div class="reader-bar">
+        <a href="/manga/{{ manga_id }}" class="btn-retour">← Retour</a>
+        <div class="chapitre-info">
+            <h2>{{ manga.titre }} - Chapitre {{ chapitre }}</h2>
+        </div>
+        <div class="navigation-chapitres">
+            {% if chapitre > 1 %}
+            <a href="/reader/{{ manga_id }}/{{ chapitre - 1 }}" class="btn-nav">⏮ Précédent</a>
+            {% endif %}
+            <span class="page-indicator">Page <span id="current-page">1</span> / {{ pages|length }}</span>
+            {% if chapitre < total_chapitres %}
+            <a href="/reader/{{ manga_id }}/{{ chapitre + 1 }}" class="btn-nav">Suivant ⏭</a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Zone de lecture -->
+    <div class="reader-viewport" id="reader">
+        {% for page in pages %}
+        <div class="page {% if loop.first %}active{% endif %}" data-page="{{ loop.index }}">
+            <img src="{{ url_for('images', filename=manga_id + '/chapitre_' + chapitre|string + '/' + page) }}" 
+                 alt="Page {{ loop.index }}">
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Contrôles flottants -->
+    <div class="reader-controls">
+        <button class="control-zone zone-prev" id="prev-btn">◀</button>
+        <button class="control-zone zone-menu" id="menu-btn">☰</button>
+        <button class="control-zone zone-next" id="next-btn">▶</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/reader.js') }}"></script>
+{% endblock %}
+    
 </body>
 </html>
